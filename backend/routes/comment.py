@@ -7,9 +7,9 @@ from datetime import datetime
 
 router = APIRouter(prefix="/api/comments", tags=["comments"])
 
-@router.get("/", response_model=List[Comment])
-def get_comments():
-    comments = list(comment_collection.find({}))
+@router.get("/{blog_id}", response_model=List[Comment])
+def get_comments(blog_id: str):
+    comments = list(comment_collection.find({"blog_id": blog_id}))
     # Convert ObjectId to string for JSON serialization
     for comment in comments:
         comment["id"] = str(comment["_id"])
@@ -25,11 +25,34 @@ def get_comment(comment_id: str):
     del comment["_id"]
     return comment
 
+from fastapi import APIRouter, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
+
 @router.post("/", response_model=Comment)
-def create_comment(comment: CommentCreate):
+async def create_comment(request: Request, comment: CommentCreate):
+    # Print request body for debugging
+    try:
+        request_body = await request.body()
+        print("Request body:", request_body)
+        print("Comment data:", comment)
+        print("Comment data dict:", comment.dict())
+        print("Comment data fields:", comment.content, comment.author, comment.blog_id)
+    except Exception as e:
+        print("Error reading request body:", str(e))
+    
+    # 验证数据格式，防止浏览器自动填充等异常数据
+    if not comment.content or not comment.author or not comment.blog_id:
+        print("Validation failed: content=", comment.content, "author=", comment.author, "blog_id=", comment.blog_id)
+        raise HTTPException(status_code=422, detail="Invalid comment data")
+    
+    # 检查是否为异常数据格式
+    if hasattr(comment.content, '_vts') or hasattr(comment.author, '_vts') or hasattr(comment.blog_id, '_vts'):
+        raise HTTPException(status_code=422, detail="Invalid comment data format")
+    
     # Verify blog exists
     blog = blog_collection.find_one({"_id": comment.blog_id})
     if blog is None:
+        print("Blog not found for ID:", comment.blog_id)
         raise HTTPException(status_code=404, detail="Blog not found")
     
     comment_dict = comment.dict()

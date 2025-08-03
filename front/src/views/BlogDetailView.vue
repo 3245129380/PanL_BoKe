@@ -42,69 +42,82 @@
 </template>
 
 <script>
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useBlogStore } from '../store/blog'
 import { renderMarkdown } from '../utils/markdown'
 import CommentSection from '../components/blog/CommentSection.vue'
 
 export default {
-    name: 'BlogDetailView',
-    components: {
-      CommentSection
-    },
-    props: {
-      id: {
-        type: String,
-        required: true
-      }
-    },
+  name: 'BlogDetailView',
+  components: {
+    CommentSection
+  },
   setup() {
+    const route = useRoute()
     const blogStore = useBlogStore()
+    const prevBlog = ref(null)
+    const nextBlog = ref(null)
     
-    return {
-      currentBlog: blogStore.currentBlog,
-      loading: blogStore.loading,
-      error: blogStore.error
-    }
-  },
-  data() {
-    return {
-      prevBlog: null,
-      nextBlog: null
-    }
-  },
-  computed: {
-    renderedContent() {
-      if (this.currentBlog && this.currentBlog.html_content) {
-        return this.currentBlog.html_content
-      } else if (this.currentBlog && this.currentBlog.content) {
-        return renderMarkdown(this.currentBlog.content)
+    // 计算渲染内容
+    const renderedContent = computed(() => {
+      if (blogStore.currentBlog && blogStore.currentBlog.html_content) {
+        return blogStore.currentBlog.html_content
+      } else if (blogStore.currentBlog && blogStore.currentBlog.content) {
+        return renderMarkdown(blogStore.currentBlog.content)
       }
       return ''
-    }
-  },
-  async created() {
-    const blogStore = useBlogStore()
-    await blogStore.fetchBlog(this.id)
+    })
     
-    // Set up navigation
-    if (blogStore.blogs.length > 0) {
-      const currentIndex = blogStore.blogs.findIndex(blog => blog.id === this.id)
-      if (currentIndex > 0) {
-        this.prevBlog = blogStore.blogs[currentIndex - 1]
+    // 获取博客详情
+    const fetchBlogDetail = async () => {
+      // Increment view count when blog is accessed
+      try {
+        await blogAPI.viewBlog(route.params.id)
+      } catch (error) {
+        console.error('Failed to increment view count:', error)
       }
-      if (currentIndex < blogStore.blogs.length - 1) {
-        this.nextBlog = blogStore.blogs[currentIndex + 1]
+      
+      await blogStore.fetchBlog(route.params.id)
+      
+      // Set up navigation
+      if (blogStore.blogs.length > 0) {
+        const currentIndex = blogStore.blogs.findIndex(blog => blog.id === route.params.id)
+        if (currentIndex > 0) {
+          prevBlog.value = blogStore.blogs[currentIndex - 1]
+        }
+        if (currentIndex < blogStore.blogs.length - 1) {
+          nextBlog.value = blogStore.blogs[currentIndex + 1]
+        }
       }
     }
-  },
-  methods: {
-    async likeBlog(id) {
-      const blogStore = useBlogStore()
+    
+    // 点赞博客
+    const likeBlog = async (id) => {
       await blogStore.likeBlog(id)
-    },
-    async shareBlog(id) {
+    }
+    
+    // 分享博客
+    const shareBlog = async (id) => {
       // Implementation for sharing
       alert('Blog shared!')
+    }
+    
+    // 组件挂载时获取博客详情
+    onMounted(() => {
+      fetchBlogDetail()
+    })
+    
+    return {
+      id: route.params.id,  // 确保id在模板中可用
+      currentBlog: blogStore.currentBlog,
+      loading: blogStore.loading,
+      error: blogStore.error,
+      prevBlog,
+      nextBlog,
+      renderedContent,
+      likeBlog,
+      shareBlog
     }
   }
 }
@@ -112,77 +125,113 @@ export default {
 
 <style scoped>
 .blog-detail {
-  padding: 1rem;
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.blog-detail h1 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
 }
 
 .blog-meta {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #ecf0f1;
   padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+
+.blog-meta p {
+  color: #7f8c8d;
+  font-size: 1rem;
+  margin: 0;
 }
 
 .blog-stats {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
 .blog-tags {
-  margin: 1rem 0;
+  margin: 1.5rem 0;
 }
 
 .tag {
   display: inline-block;
-  background-color: #f0f0f0;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
+  background-color: #ecf0f1;
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
   margin-right: 0.5rem;
   font-size: 0.8rem;
+  color: #7f8c8d;
 }
 
 .blog-content {
-  margin: 1rem 0;
-  line-height: 1.6;
+  margin: 1.5rem 0;
+  line-height: 1.8;
+  font-size: 1.1rem;
+  color: #34495e;
 }
 
 .blog-actions {
-  margin: 1rem 0;
+  margin: 1.5rem 0;
+  padding: 1.5rem 0;
+  border-top: 1px solid #ecf0f1;
+  border-bottom: 1px solid #ecf0f1;
 }
 
 .blog-actions button {
   margin-right: 1rem;
-  padding: 0.5rem 1rem;
-  background-color: #007bff;
+  padding: 0.6rem 1.2rem;
+  background-color: #42b983;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
 }
 
 .blog-actions button:hover {
-  background-color: #0056b3;
+  background-color: #359c6d;
 }
 
 .comments-section {
   margin: 2rem 0;
-  padding: 1rem;
-  background-color: #f9f9f9;
-  border-radius: 4px;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
 }
 
 .navigation {
   display: flex;
   justify-content: space-between;
   margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #ecf0f1;
 }
 
 .navigation a {
   text-decoration: none;
-  color: #007bff;
+  color: #42b983;
+  font-size: 1rem;
+  transition: color 0.3s ease;
 }
 
 .navigation a:hover {
+  color: #359c6d;
   text-decoration: underline;
 }
 </style>

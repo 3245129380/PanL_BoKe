@@ -18,13 +18,14 @@ export default {
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
   line-height: 1.6;
-  color: #333;
-  background-color: #f4f4f4;
+  color: #2c3e50;
+  background-color: #f8f9fa;
 }
 
 #app {
   min-height: 100vh;
+  padding: 1rem;
 }
 </style>

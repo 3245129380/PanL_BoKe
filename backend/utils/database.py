@@ -23,5 +23,7 @@ blog_collection.create_index("tags")
 blog_collection.create_index("created_at")
 comment_collection.create_index("blog_id")
 comment_collection.create_index("author")
+# 为评论集合添加复合唯一索引，防止重复数据插入
+comment_collection.create_index([("content", 1), ("author", 1), ("blog_id", 1), ("created_at", 1)], unique=True)
 user_collection.create_index("email", unique=True)
 user_collection.create_index("username", unique=True)

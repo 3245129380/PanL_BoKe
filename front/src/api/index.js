@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_BASE_URL = 'http://localhost:8000/api'
+const API_BASE_URL = 'http://localhost:8001/api'
 
 // Create an axios instance
 const apiClient = axios.create({
@@ -36,12 +36,24 @@ export const blogAPI = {
 }
 
 // Comment API
+// 用于防重复提交的时间戳
+let lastCommentTimestamp = 0;
+
 export const commentAPI = {
   // Get comments for a blog
   getComments: (blogId) => apiClient.get(`/comments/${blogId}`),
   
   // Add a comment
-  addComment: (comment) => apiClient.post('/comments', comment),
+  addComment: (comment) => {
+    // 防重复提交机制
+    const now = Date.now();
+    if (now - lastCommentTimestamp < 1000) { // 1秒内不允许重复提交
+      return Promise.reject(new Error('提交过于频繁，请稍后再试'));
+    }
+    lastCommentTimestamp = now;
+    
+    return apiClient.post('/comments', comment);
+  },
   
   // Delete a comment
   deleteComment: (id) => apiClient.delete(`/comments/${id}`)

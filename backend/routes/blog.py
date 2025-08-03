@@ -31,6 +31,12 @@ def get_blog(blog_id: str):
     blog = blog_collection.find_one({"_id": blog_id})
     if blog is None:
         raise HTTPException(status_code=404, detail="Blog not found")
+    
+    # Increment view count
+    blog_collection.update_one({"_id": blog_id}, {"$inc": {"views": 1}})
+    
+    # Refresh blog data to get updated view count
+    blog = blog_collection.find_one({"_id": blog_id})
     blog["id"] = str(blog["_id"])
     del blog["_id"]
     return blog

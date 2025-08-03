@@ -176,25 +176,28 @@ export default {
 
 <style scoped>
 .blog-editor {
-  padding: 1rem;
+  padding: 1.5rem;
 }
 
 .markdown-preview {
-  padding: 1rem;
-  border: 1px solid #eee;
-  border-radius: 4px;
+  padding: 1.5rem;
+  border: 1px solid #ecf0f1;
+  border-radius: 8px;
   min-height: 300px;
   background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .markdown-preview :deep(h1) {
   font-size: 1.75rem;
-  margin: 1rem 0;
+  margin: 1.5rem 0;
+  color: #2c3e50;
 }
 
 .markdown-preview :deep(h2) {
   font-size: 1.5rem;
-  margin: 0.8rem 0;
+  margin: 1.2rem 0;
+  color: #2c3e50;
 }
 
 .markdown-preview :deep(h3) {

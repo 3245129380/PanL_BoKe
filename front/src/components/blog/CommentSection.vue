@@ -14,7 +14,7 @@
       </div>
     </div>
     
-    <CommentForm @submit="handleCommentSubmit" />
+    <CommentForm :blog-id="blogId" @submit="handleCommentSubmit" />
   </div>
 </template>
 
@@ -22,6 +22,7 @@
 import { ref, onMounted } from 'vue'
 import Comment from './Comment.vue'
 import CommentForm from './CommentForm.vue'
+import { useCommentStore } from '../../store'
 
 export default {
   name: 'CommentSection',
@@ -36,53 +37,18 @@ export default {
     }
   },
   setup(props) {
-    const comments = ref([])
-    const loading = ref(false)
-    const error = ref('')
+    const commentStore = useCommentStore()
     
-    // 模拟获取评论数据
+    // 获取评论数据
     const fetchComments = async () => {
-      loading.value = true
-      error.value = ''
-      
-      try {
-        // 这里应该调用实际的API获取评论数据
-        // 暂时使用模拟数据
-        await new Promise(resolve => setTimeout(resolve, 1000))
-        comments.value = [
-          {
-            id: '1',
-            author: '张三',
-            content: '这篇文章写得真好！',
-            createdAt: '2023-05-01T12:00:00Z'
-          },
-          {
-            id: '2',
-            author: '李四',
-            content: '感谢分享，学到了很多。',
-            createdAt: '2023-05-02T14:30:00Z'
-          }
-        ]
-      } catch (err) {
-        error.value = '获取评论失败'
-      } finally {
-        loading.value = false
-      }
+      await commentStore.fetchComments(props.blogId)
     }
     
     // 处理提交评论
     const handleCommentSubmit = async (commentData) => {
+      console.log('CommentSection received commentData:', commentData);
       try {
-        // 这里应该调用实际的API提交评论
-        // 暂时使用模拟数据
-        const newComment = {
-          id: Date.now().toString(),
-          author: commentData.author,
-          content: commentData.content,
-          createdAt: new Date().toISOString()
-        }
-        
-        comments.value.unshift(newComment)
+        await commentStore.addComment(commentData)
       } catch (err) {
         console.error('提交评论失败:', err)
       }
@@ -93,9 +59,9 @@ export default {
     })
     
     return {
-      comments,
-      loading,
-      error,
+      comments: commentStore.comments,
+      loading: commentStore.loading,
+      error: commentStore.error,
       handleCommentSubmit
     }
   }
@@ -105,19 +71,35 @@ export default {
 <style scoped>
 .comment-section {
   margin-top: 2rem;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
 }
 
 .comment-section h3 {
   margin-bottom: 1rem;
   font-size: 1.5rem;
-}
-
-.loading, .error, .no-comments {
-  padding: 1rem;
+  color: #2c3e50;
   text-align: center;
 }
 
+.loading, .error, .no-comments {
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 1rem;
+}
+
+.loading {
+  color: #7f8c8d;
+}
+
 .error {
-  color: #f56565;
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.no-comments {
+  color: #7f8c8d;
+  font-style: italic;
 }
 </style>

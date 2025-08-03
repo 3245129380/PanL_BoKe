@@ -29,26 +29,33 @@ export default {
 
 <style scoped>
 .comment {
-  border-bottom: 1px solid #eee;
-  padding: 1rem 0;
+  border-bottom: 1px solid #ecf0f1;
+  padding: 1.5rem 0;
+}
+
+.comment:last-child {
+  border-bottom: none;
 }
 
 .comment-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
 }
 
 .comment-author {
   font-weight: bold;
+  color: #2c3e50;
 }
 
 .comment-date {
-  color: #666;
+  color: #7f8c8d;
   font-size: 0.9rem;
 }
 
 .comment-content {
-  margin-left: 1rem;
+  margin-left: 0;
+  line-height: 1.6;
+  color: #34495e;
 }
 </style>

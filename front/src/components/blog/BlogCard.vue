@@ -1,6 +1,6 @@
 <template>
   <div class="blog-card">
-    <h3>
+    <h3 class="blog-title">
       <router-link :to="{ name: 'blog-detail', params: { id: blog.id } }">
         {{ blog.title }}
       </router-link>
@@ -8,14 +8,14 @@
     <p class="blog-meta">
       By {{ blog.author }} on {{ new Date(blog.created_at).toLocaleDateString() }}
     </p>
-    <p class="blog-excerpt">{{ blog.content.substring(0, 100) }}...</p>
+    <p class="blog-excerpt">{{ blog.content.substring(0, 150) }}...</p>
     <div class="blog-tags">
       <span v-for="tag in blog.tags" :key="tag" class="tag">{{ tag }}</span>
     </div>
     <div class="blog-stats">
-      <span>👁️ {{ blog.views }}</span>
-      <span>❤️ {{ blog.likes }}</span>
-      <span>🔗 {{ blog.shares }}</span>
+      <span class="stat-item">👁️ {{ blog.views }}</span>
+      <span class="stat-item">❤️ {{ blog.likes }}</span>
+      <span class="stat-item">🔗 {{ blog.shares }}</span>
     </div>
   </div>
 </template>
@@ -36,49 +36,72 @@ export default {
 .blog-card {
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
   background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: box-shadow 0.3s ease;
 }
 
-.blog-card h3 {
-  margin: 0 0 0.5rem 0;
+.blog-card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
 }
 
-.blog-card h3 a {
+.blog-title {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.4rem;
+}
+
+.blog-title a {
   text-decoration: none;
-  color: #333;
+  color: #2c3e50;
+  transition: color 0.3s ease;
+}
+
+.blog-title a:hover {
+  color: #42b983;
 }
 
 .blog-meta {
-  color: #666;
-  font-size: 0.8rem;
-  margin: 0.5rem 0;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  margin: 0.75rem 0;
 }
 
 .blog-excerpt {
-  margin: 0.5rem 0;
-  font-size: 0.9rem;
+  margin: 0.75rem 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #34495e;
 }
 
 .blog-tags {
-  margin: 0.5rem 0;
+  margin: 0.75rem 0;
 }
 
 .tag {
   display: inline-block;
-  background-color: #f0f0f0;
-  padding: 0.2rem 0.5rem;
-  border-radius: 4px;
+  background-color: #ecf0f1;
+  padding: 0.25rem 0.6rem;
+  border-radius: 12px;
   margin-right: 0.5rem;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
+  color: #7f8c8d;
 }
 
 .blog-stats {
   display: flex;
-  gap: 1rem;
-  font-size: 0.8rem;
-  color: #666;
+  gap: 1.5rem;
+  font-size: 0.9rem;
+  color: #7f8c8d;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #ecf0f1;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 </style>

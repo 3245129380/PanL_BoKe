@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import BlogLayout from '../layouts/BlogLayout.vue'
+import TestCommentView from '../views/TestCommentView.vue'
 
 const routes = [
   {
@@ -31,6 +32,11 @@ const routes = [
         path: '/edit/:id',
         name: 'edit-blog',
         component: () => import('../views/EditBlogView.vue')
+      },
+      {
+        path: '/test-comment',
+        name: 'test-comment',
+        component: () => import('../views/TestCommentView.vue')
       }
     ]
   }
